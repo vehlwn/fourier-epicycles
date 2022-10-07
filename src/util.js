@@ -2,6 +2,10 @@
 
 import Complex from "complex.js";
 
+export function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(v, hi));
+}
+
 export function lerp(x, xp, yp) {
     const a = (yp[1] - yp[0]) / (xp[1] - xp[0]);
     const b = yp[0] - xp[0] * a;

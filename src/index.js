@@ -1,7 +1,7 @@
 "use strict";
 
 import Complex from "complex.js";
-import { lerp, calc_epicycles } from "./util.js";
+import { lerp, calc_epicycles, clamp } from "./util.js";
 
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
@@ -15,9 +15,11 @@ let clear_btn;
 let input_data_area;
 let show_grid_checkbox;
 let show_input_points_checkbox;
+let fps_input;
 
 let data_points = [];
 let animation_started = false;
+let animation_interval;
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -214,6 +216,15 @@ function add_event_listeners() {
         }
     });
 
+    show_grid_checkbox.addEventListener("change", () => {
+        redraw_scene();
+    });
+    show_input_points_checkbox.addEventListener("change", () => {
+        redraw_scene();
+    });
+    fps_input.addEventListener("input", () => {
+        fps_input.value = clamp(fps_input.value, fps_input.min, fps_input.max);
+    });
     start_btn.addEventListener("click", () => {
         if (!animation_started) {
             start_animation();
@@ -226,21 +237,16 @@ function add_event_listeners() {
         input_data_area.value = "";
         redraw_scene();
     });
-    show_grid_checkbox.addEventListener("change", () => {
-        redraw_scene();
-    });
-    show_input_points_checkbox.addEventListener("change", () => {
-        redraw_scene();
-    });
 }
 
 window.onload = () => {
     canvas = document.getElementById("main-scene");
     ctx = canvas.getContext("2d");
     input_data_area = document.getElementById("input-data");
-    start_btn = document.getElementById("start-btn");
     show_grid_checkbox = document.getElementById("show-grid");
     show_input_points_checkbox = document.getElementById("show-input-points");
+    fps_input = document.getElementById("fps");
+    start_btn = document.getElementById("start-btn");
     clear_btn = document.getElementById("clear-btn");
 
     draw_grid();
