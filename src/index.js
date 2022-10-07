@@ -15,11 +15,15 @@ let clear_btn;
 let input_data_area;
 let show_grid_checkbox;
 let show_input_points_checkbox;
+let harmonics_input;
+let precision_input;
 let fps_input;
 
 let data_points = [];
 let animation_started = false;
 let animation_interval;
+let current_time = 0;
+let epicycles = [];
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -34,7 +38,7 @@ function canvas_pos_to_scene(pos) {
 
 function scene_pos_to_canvas(pos) {
     const x = lerp(pos.x, [-10, 10], [0, canvas.width]);
-    const y = lerp(pos.y, [10, -10], [0, canvas.height]);
+    const y = lerp(pos.y, [-10, 10], [canvas.height, 0]);
     return { x, y };
 }
 
@@ -142,15 +146,7 @@ function draw_data_point(canvas_pos) {
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = DATA_POINT_COLOR;
-    ctx.ellipse(
-        canvas_pos.x,
-        canvas_pos.y,
-        DATA_POINT_SIZE,
-        DATA_POINT_SIZE,
-        0,
-        0,
-        2.0 * Math.PI
-    );
+    ctx.arc(canvas_pos.x, canvas_pos.y, DATA_POINT_SIZE, 0, 2.0 * Math.PI);
     ctx.fill();
     ctx.restore();
 }
@@ -190,17 +186,96 @@ function redraw_scene() {
     }
 }
 
+function animation_step() {
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (show_grid_checkbox.checked) {
+        draw_grid();
+    }
+    if (show_input_points_checkbox.checked) {
+        for (const p of data_points) {
+            draw_data_point(scene_pos_to_canvas({ x: p.re, y: p.im }));
+        }
+    }
+    if (epicycles.length !== 0) {
+        let accumulated_point = Complex(0);
+        const series_point = epicycles[current_time];
+        ctx.strokeStyle = CIRCLE_COLOR;
+        ctx.lineWidth = 1;
+        for (let i = 0; i < harmonics_input.value; i++) {
+            const p = series_point[i];
+            const a = scene_pos_to_canvas({
+                x: accumulated_point.re,
+                y: accumulated_point.im,
+            });
+            const next_point = accumulated_point.add(p);
+            const b = scene_pos_to_canvas({
+                x: next_point.re,
+                y: next_point.im,
+            });
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(
+                a.x,
+                a.y,
+                Math.hypot(a.x - b.x, a.y - b.y),
+                0,
+                2.0 * Math.PI
+            );
+            ctx.stroke();
+            accumulated_point = next_point;
+        }
+        current_time++;
+        if (current_time === epicycles.length) {
+            current_time = 0;
+        }
+    }
+    ctx.restore();
+}
+
+function validate_fps_input() {
+    fps_input.value = clamp(fps_input.value, fps_input.min, fps_input.max);
+}
+
+function validate_precision_input() {
+    precision_input.value = Math.max(
+        precision_input.value,
+        precision_input.min
+    );
+}
+
 function start_animation() {
-    console.log(parse_data_points());
+    validate_fps_input();
+    validate_precision_input();
+
+    data_points = parse_data_points();
+    epicycles = calc_epicycles(data_points, precision_input.value);
+    console.log(epicycles);
+    harmonics_input.min = 1;
+    harmonics_input.max = data_points.length;
+    harmonics_input.value = harmonics_input.max;
+
     animation_started = true;
     start_btn.innerHTML = "Stop";
     clear_btn.disabled = true;
+
+    animation_interval = setInterval(
+        animation_step,
+        (1.0 / fps_input.value) * 1000.0
+    );
 }
 
 function stop_animation() {
     animation_started = false;
     start_btn.innerHTML = "Start";
     clear_btn.disabled = false;
+    epicycles = [];
+    current_time = 0;
+    clearInterval(animation_interval);
+    animation_interval = null;
 }
 
 function add_event_listeners() {
@@ -222,11 +297,8 @@ function add_event_listeners() {
     show_input_points_checkbox.addEventListener("change", () => {
         redraw_scene();
     });
-    fps_input.addEventListener("input", () => {
-        fps_input.value = clamp(fps_input.value, fps_input.min, fps_input.max);
-    });
     start_btn.addEventListener("click", () => {
-        if (!animation_started) {
+        if (!animation_started && data_points.length !== 0) {
             start_animation();
         } else {
             stop_animation();
@@ -245,13 +317,13 @@ window.onload = () => {
     input_data_area = document.getElementById("input-data");
     show_grid_checkbox = document.getElementById("show-grid");
     show_input_points_checkbox = document.getElementById("show-input-points");
+    harmonics_input = document.getElementById("harmonics");
+    precision_input = document.getElementById("precision");
     fps_input = document.getElementById("fps");
     start_btn = document.getElementById("start-btn");
     clear_btn = document.getElementById("clear-btn");
 
     draw_grid();
-    const input = [Complex(10, 1), Complex(20, 2), Complex(30, 3)];
-    console.log(calc_epicycles(input, 4));
 
     add_event_listeners();
 };
