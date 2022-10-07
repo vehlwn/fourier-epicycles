@@ -8,9 +8,18 @@
 
         <style>
             #main-scene {
-              border: 1px solid black;
-              <!-- max-height: 600px; -->
-              <!-- image-rendering: pixelated; -->
+                border: 1px solid black;
+                <!-- max-height: 600px; -->
+                <!-- image-rendering: pixelated; -->
+            }
+            .prevent-select {
+              -webkit-user-select: none; /* Safari */
+              -ms-user-select: none; /* IE 10 and IE 11 */
+              user-select: none; /* Standard syntax */
+            }
+            [type="checkbox"]
+            {
+                vertical-align:middle;
             }
         </style>
     </head>
@@ -36,7 +45,9 @@
                             name="show-grid"
                             checked
                         />
-                        <label for="show-grid">Show grid</label>
+                        <label for="show-grid" class="prevent-select"
+                            >Show grid</label
+                        >
                     </div>
                     <div>
                         <input
@@ -45,7 +56,9 @@
                             name="show-input-points"
                             checked
                         />
-                        <label for="show-input-points">Show input points</label>
+                        <label for="show-input-points" class="prevent-select"
+                            >Show input points</label
+                        >
                     </div>
                     <div>
                         <input
@@ -54,7 +67,9 @@
                             name="show-circles"
                             checked
                         />
-                        <label for="show-circles">Show circles</label>
+                        <label for="show-circles" class="prevent-select"
+                            >Show circles</label
+                        >
                     </div>
 
                     <table>
