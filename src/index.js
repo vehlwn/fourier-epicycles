@@ -10,8 +10,13 @@ const SERIES_COLOR = "red";
 
 let canvas;
 let ctx;
-let data_points;
+let start_btn;
 let input_data_area;
+let show_grid_checkbox;
+let show_input_points_checkbox;
+
+let data_points = [];
+let animation_started = false;
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -24,7 +29,13 @@ function canvas_pos_to_scene(pos) {
     return { x, y };
 }
 
-function draw_axis() {
+function scene_pos_to_canvas(pos) {
+    const x = lerp(pos.x, [-10, 10], [0, canvas.width]);
+    const y = lerp(pos.y, [10, -10], [0, canvas.height]);
+    return { x, y };
+}
+
+function draw_grid() {
     ctx.save();
 
     const font_px = canvas.width * 0.03;
@@ -125,6 +136,7 @@ function draw_axis() {
 }
 
 function draw_data_point(canvas_pos) {
+    ctx.save();
     ctx.beginPath();
     ctx.fillStyle = DATA_POINT_COLOR;
     ctx.ellipse(
@@ -137,6 +149,7 @@ function draw_data_point(canvas_pos) {
         2.0 * Math.PI
     );
     ctx.fill();
+    ctx.restore();
 }
 
 function add_data_point_to_textarea(scene_pos) {
@@ -162,23 +175,60 @@ function parse_data_points() {
     return ret;
 }
 
+function redraw_scene() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (show_grid_checkbox.checked) {
+        draw_grid();
+    }
+    if (show_input_points_checkbox.checked) {
+        for (const p of data_points) {
+            draw_data_point(scene_pos_to_canvas({ x: p.re, y: p.im }));
+        }
+    }
+}
+
+function add_event_listeners() {
+    canvas.addEventListener("click", (e) => {
+        if (!animation_started) {
+            const canvas_pos = mouse_pos_to_canvas(e);
+            if (show_input_points_checkbox.checked) {
+                draw_data_point(canvas_pos);
+            }
+            const scene_pos = canvas_pos_to_scene(canvas_pos);
+            add_data_point_to_textarea(scene_pos);
+            data_points.push(Complex(scene_pos.x, scene_pos.y));
+        }
+    });
+
+    start_btn.addEventListener("click", () => {
+        if (!animation_started) {
+            console.log(parse_data_points());
+            animation_started = true;
+            start_btn.innerHTML = "Stop";
+        } else {
+            animation_started = false;
+            start_btn.innerHTML = "Start";
+        }
+    });
+    show_grid_checkbox.addEventListener("change", () => {
+        redraw_scene();
+    });
+    show_input_points_checkbox.addEventListener("change", () => {
+        redraw_scene();
+    });
+}
+
 window.onload = () => {
     canvas = document.getElementById("main-scene");
     ctx = canvas.getContext("2d");
     input_data_area = document.getElementById("input-data");
+    start_btn = document.getElementById("start-btn");
+    show_grid_checkbox = document.getElementById("show-grid");
+    show_input_points_checkbox = document.getElementById("show-input-points");
 
-    draw_axis();
+    draw_grid();
     const input = [Complex(10, 1), Complex(20, 2), Complex(30, 3)];
     console.log(calc_epicycles(input, 4));
 
-    canvas.addEventListener("click", (e) => {
-        const canvas_pos = mouse_pos_to_canvas(e);
-        draw_data_point(canvas_pos);
-        const scene_pos = canvas_pos_to_scene(canvas_pos);
-        add_data_point_to_textarea(scene_pos);
-    });
-
-    document.getElementById("start-btn").addEventListener("click", () => {
-        console.log(parse_data_points());
-    });
+    add_event_listeners();
 };
