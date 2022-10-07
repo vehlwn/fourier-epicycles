@@ -42,10 +42,8 @@ export function calc_epicycles(input, n) {
     for (const t of linspace(0, N, n)) {
         const one_point = [];
         for (let n = 0; n < N; n++) {
-            const tmp = Complex(
-                0,
-                (2 * Math.PI * t * (n - Math.floor(N / 2))) / N
-            );
+            const frequecy = n > Math.floor(N / 2) ? n - N : n;
+            const tmp = Complex(0, (2 * Math.PI * t * frequecy) / N);
             one_point.push(coef[n].mul(tmp.exp()).div(Complex(Math.sqrt(N))));
         }
         const compare_abs = (a, b) => {
