@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>Fourier Epicycles</title>
+
+        <style>
+            #main-scene {
+              border: 1px solid black;
+              max-height: 600px;
+              <!-- image-rendering: pixelated; -->
+            }
+        </style>
+    </head>
+    <body>
+        <div style="display: flex; flex-direction: row">
+            <canvas id="main-scene" width="600" height="600"
+                >Your browser does not support JavaScript!</canvas
+            >
+            <div
+                style="display: flex; flex-direction: column; margin-left: 10px"
+            >
+                <textarea
+                    id="input-data"
+                    rows="20"
+                    style="margin-bottom: 5px"
+                ></textarea>
+
+                <div style="margin-bottom: 5px">
+                    <input
+                        type="checkbox"
+                        id="show-grid"
+                        name="show-grid"
+                        checked
+                    />
+                    <label for="show-grid">Show grid</label>
+                </div>
+                <div style="margin-bottom: 5px">
+                    <input
+                        type="checkbox"
+                        id="show-input-points"
+                        name="show-input-points"
+                        checked
+                    />
+                    <label for="show-input-points">Show input points</label>
+                </div>
+                <div style="margin-bottom: 5px">
+                    <input
+                        type="checkbox"
+                        id="show-circles"
+                        name="show-circles"
+                        checked
+                    />
+                    <label for="show-circles">Show circles</label>
+                </div>
+
+                <table>
+                    <tr>
+                        <td><label for="quantity">Harmonics:</label></td>
+                        <td>
+                            <input
+                                type="number"
+                                id="harmonics"
+                                name="harmonics"
+                                min="0"
+                                max="0"
+                                value="0"
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="quantity">Precision:</label></td>
+                        <td>
+                            <input
+                                type="number"
+                                id="precision"
+                                name="precision"
+                                min="2"
+                                value="100"
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="FPS">FPS:</label></td>
+                        <td>
+                            <input
+                                type="number"
+                                id="fps"
+                                name="fps"
+                                min="1"
+                                max="100"
+                                value="20"
+                            />
+                        </td>
+                    </tr>
+                </table>
+
+                <button id="start-btn" type="button" style="margin-bottom: 5px">
+                    Start
+                </button>
+            </div>
+        </div>
+    </body>
+</html>
