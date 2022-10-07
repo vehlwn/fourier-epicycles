@@ -11,6 +11,7 @@ const SERIES_COLOR = "red";
 let canvas;
 let ctx;
 let start_btn;
+let clear_btn;
 let input_data_area;
 let show_grid_checkbox;
 let show_input_points_checkbox;
@@ -187,6 +188,19 @@ function redraw_scene() {
     }
 }
 
+function start_animation() {
+    console.log(parse_data_points());
+    animation_started = true;
+    start_btn.innerHTML = "Stop";
+    clear_btn.disabled = true;
+}
+
+function stop_animation() {
+    animation_started = false;
+    start_btn.innerHTML = "Start";
+    clear_btn.disabled = false;
+}
+
 function add_event_listeners() {
     canvas.addEventListener("click", (e) => {
         if (!animation_started) {
@@ -202,13 +216,15 @@ function add_event_listeners() {
 
     start_btn.addEventListener("click", () => {
         if (!animation_started) {
-            console.log(parse_data_points());
-            animation_started = true;
-            start_btn.innerHTML = "Stop";
+            start_animation();
         } else {
-            animation_started = false;
-            start_btn.innerHTML = "Start";
+            stop_animation();
         }
+    });
+    clear_btn.addEventListener("click", () => {
+        data_points = [];
+        input_data_area.value = "";
+        redraw_scene();
     });
     show_grid_checkbox.addEventListener("change", () => {
         redraw_scene();
@@ -225,6 +241,7 @@ window.onload = () => {
     start_btn = document.getElementById("start-btn");
     show_grid_checkbox = document.getElementById("show-grid");
     show_input_points_checkbox = document.getElementById("show-input-points");
+    clear_btn = document.getElementById("clear-btn");
 
     draw_grid();
     const input = [Complex(10, 1), Complex(20, 2), Complex(30, 3)];
