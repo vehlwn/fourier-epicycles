@@ -20,10 +20,8 @@ let precision_input;
 let fps_input;
 
 let data_points = [];
-let animation_started = false;
-let animation_interval;
+let animation_interval = null;
 let current_time = 0;
-let epicycles = [];
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -186,17 +184,9 @@ function redraw_scene() {
     }
 }
 
-function animation_step() {
+function animation_step(epicycles) {
     ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (show_grid_checkbox.checked) {
-        draw_grid();
-    }
-    if (show_input_points_checkbox.checked) {
-        for (const p of data_points) {
-            draw_data_point(scene_pos_to_canvas({ x: p.re, y: p.im }));
-        }
-    }
+    redraw_scene();
     if (epicycles.length !== 0) {
         let accumulated_point = Complex(0);
         const series_point = epicycles[current_time];
@@ -252,27 +242,27 @@ function start_animation() {
     validate_precision_input();
 
     data_points = parse_data_points();
-    epicycles = calc_epicycles(data_points, precision_input.value);
-    console.log(epicycles);
+    const { epicycles, coef, freq } = calc_epicycles(
+        data_points,
+        parseInt(precision_input.value)
+    );
     harmonics_input.min = 1;
     harmonics_input.max = data_points.length;
     harmonics_input.value = harmonics_input.max;
 
-    animation_started = true;
     start_btn.innerHTML = "Stop";
     clear_btn.disabled = true;
 
     animation_interval = setInterval(
         animation_step,
-        (1.0 / fps_input.value) * 1000.0
+        (1.0 / fps_input.value) * 1000.0,
+        epicycles
     );
 }
 
 function stop_animation() {
-    animation_started = false;
     start_btn.innerHTML = "Start";
     clear_btn.disabled = false;
-    epicycles = [];
     current_time = 0;
     clearInterval(animation_interval);
     animation_interval = null;
@@ -280,7 +270,7 @@ function stop_animation() {
 
 function add_event_listeners() {
     canvas.addEventListener("click", (e) => {
-        if (!animation_started) {
+        if (animation_interval === null) {
             const canvas_pos = mouse_pos_to_canvas(e);
             if (show_input_points_checkbox.checked) {
                 draw_data_point(canvas_pos);
@@ -298,7 +288,7 @@ function add_event_listeners() {
         redraw_scene();
     });
     start_btn.addEventListener("click", () => {
-        if (!animation_started && data_points.length !== 0) {
+        if (animation_interval === null && data_points.length !== 0) {
             start_animation();
         } else {
             stop_animation();

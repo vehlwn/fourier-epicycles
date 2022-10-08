@@ -12,7 +12,7 @@ export function lerp(x, xp, yp) {
     return a * x + b;
 }
 
-export function linspace(start, stop, num) {
+function linspace(start, stop, num) {
     const ret = [];
     for (let i = 0; i < num; i++) {
         ret.push(lerp(i, [0, num - 1], [start, stop]));
@@ -20,7 +20,7 @@ export function linspace(start, stop, num) {
     return ret;
 }
 
-export function dft(input, inverse = false) {
+function dft(input, inverse = false) {
     const N = input.length;
     const ret = [];
     for (let i = 0; i < N; i++) {
@@ -39,15 +39,26 @@ export function dft(input, inverse = false) {
     return ret;
 }
 
+function calc_frequencies(N) {
+    const ret = [];
+    for (let n = 0; n < N; n++) {
+        const frequecy = n > Math.floor(N / 2) ? n - N : n;
+        ret.push(frequecy);
+    }
+    return ret;
+}
+
 export function calc_epicycles(input, n) {
     const N = input.length;
     const coef = dft(input);
+    const freq = calc_frequencies(N);
     const ret = [];
-    for (const t of linspace(0, N, n)) {
+    const times = linspace(0, N, n + 1);
+    times.pop();
+    for (const t of times) {
         const one_point = [];
         for (let n = 0; n < N; n++) {
-            const frequecy = n > Math.floor(N / 2) ? n - N : n;
-            const tmp = Complex(0, (2 * Math.PI * t * frequecy) / N);
+            const tmp = Complex(0, (2 * Math.PI * t * freq[n]) / N);
             one_point.push(coef[n].mul(tmp.exp()).div(Complex(Math.sqrt(N))));
         }
         const compare_abs = (a, b) => {
@@ -60,5 +71,5 @@ export function calc_epicycles(input, n) {
         one_point.sort((a, b) => -compare_abs(a, b));
         ret.push(one_point);
     }
-    return ret;
+    return { epicycles: ret, coef, freq };
 }
