@@ -6,7 +6,6 @@ import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
 const CIRCLE_COLOR = "blue";
-const SERIES_COLOR = "red";
 
 let canvas;
 let ctx;

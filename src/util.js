@@ -74,13 +74,19 @@ export function calc_epicycles(input, n) {
     return { epicycles: ret, coef, freq };
 }
 
+function round(x, n) {
+    return Math.round(x * 10 ** n) / 10 ** n;
+}
+
 export function get_series_formula(coef, freq) {
     const N = coef.length;
     let ret = `f(t) = 1/sqrt(${N}) * (`;
     let comma = "";
     for (let i = 0; i < N; i++) {
         ret += comma;
-        ret += `(${coef[i].toString()}) * exp(2i * pi * t * ${freq[i]} / ${N})`;
+        const tmp = Complex(round(coef[i].re, 3), round(coef[i].im, 3));
+        ret += `(${tmp.toString()}) * exp(2i*pi*t*${freq[i]}/${N})`;
+        comma = " + ";
     }
     ret += ")";
     return ret;
