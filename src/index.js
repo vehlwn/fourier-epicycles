@@ -1,7 +1,7 @@
 "use strict";
 
 import Complex from "complex.js";
-import { lerp, calc_epicycles, clamp } from "./util.js";
+import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
 
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
@@ -242,10 +242,15 @@ function start_animation() {
     validate_precision_input();
 
     data_points = parse_data_points();
+    if (data_points.length === 0) {
+        return;
+    }
     const { epicycles, coef, freq } = calc_epicycles(
         data_points,
         parseInt(precision_input.value)
     );
+    console.log(get_series_formula(coef, freq));
+
     harmonics_input.min = 1;
     harmonics_input.max = data_points.length;
     harmonics_input.value = harmonics_input.max;
@@ -288,7 +293,7 @@ function add_event_listeners() {
         redraw_scene();
     });
     start_btn.addEventListener("click", () => {
-        if (animation_interval === null && data_points.length !== 0) {
+        if (animation_interval === null) {
             start_animation();
         } else {
             stop_animation();
