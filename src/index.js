@@ -14,6 +14,7 @@ let clear_btn;
 let input_data_area;
 let show_grid_checkbox;
 let show_input_points_checkbox;
+let show_circles_checkbox;
 let harmonics_input;
 let precision_input;
 let fps_input;
@@ -186,7 +187,7 @@ function redraw_scene() {
 function animation_step(epicycles) {
     ctx.save();
     redraw_scene();
-    if (epicycles.length !== 0) {
+    if (epicycles.length !== 0 && show_circles_checkbox.checked) {
         let accumulated_point = Complex(0);
         const series_point = epicycles[current_time];
         ctx.strokeStyle = CIRCLE_COLOR;
@@ -315,6 +316,7 @@ window.onload = () => {
     input_data_area = document.getElementById("input-data");
     show_grid_checkbox = document.getElementById("show-grid");
     show_input_points_checkbox = document.getElementById("show-input-points");
+    show_circles_checkbox = document.getElementById("show-circles");
     harmonics_input = document.getElementById("harmonics");
     precision_input = document.getElementById("precision");
     fps_input = document.getElementById("fps");
