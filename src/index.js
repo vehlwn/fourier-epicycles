@@ -286,10 +286,14 @@ function add_event_listeners() {
     });
 
     show_grid_checkbox.addEventListener("change", () => {
-        redraw_scene();
+        if (animation_interval === null) {
+            redraw_scene();
+        }
     });
     show_input_points_checkbox.addEventListener("change", () => {
-        redraw_scene();
+        if (animation_interval === null) {
+            redraw_scene();
+        }
     });
     start_btn.addEventListener("click", () => {
         if (animation_interval === null) {
