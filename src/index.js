@@ -6,6 +6,7 @@ import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
 const CIRCLE_COLOR = "blue";
+const SERIES_COLOR = "red";
 
 let canvas;
 let ctx;
@@ -22,6 +23,7 @@ let fps_input;
 let data_points = [];
 let animation_interval = null;
 let current_time = 0;
+let series_path = [];
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -184,45 +186,73 @@ function redraw_scene() {
     }
 }
 
+function draw_circles(epicycles) {
+    let accumulated_point = Complex(0);
+    const series_point = epicycles[current_time];
+    ctx.strokeStyle = CIRCLE_COLOR;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < harmonics_input.value; i++) {
+        const p = series_point[i];
+        const a = scene_pos_to_canvas({
+            x: accumulated_point.re,
+            y: accumulated_point.im,
+        });
+        const next_point = accumulated_point.add(p);
+        const b = scene_pos_to_canvas({
+            x: next_point.re,
+            y: next_point.im,
+        });
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, Math.hypot(a.x - b.x, a.y - b.y), 0, 2.0 * Math.PI);
+        ctx.stroke();
+        accumulated_point = next_point;
+    }
+    series_path.push(accumulated_point);
+    if (series_path.length > epicycles.length + 1) {
+        series_path.shift();
+    }
+
+    current_time++;
+    if (current_time === epicycles.length) {
+        current_time = 0;
+    }
+}
+
+function draw_series_path() {
+    ctx.save();
+    ctx.strokeStyle = SERIES_COLOR;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const draw_line = (i, j) => {
+        const a = scene_pos_to_canvas({
+            x: series_path[i].re,
+            y: series_path[i].im,
+        });
+        const b = scene_pos_to_canvas({
+            x: series_path[j].re,
+            y: series_path[j].im,
+        });
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+    };
+    for (let i = 0; i < series_path.length - 1; i++) {
+        draw_line(i, i + 1);
+    }
+    ctx.stroke();
+    ctx.restore();
+}
+
 function animation_step(epicycles) {
     ctx.save();
     redraw_scene();
     if (epicycles.length !== 0 && show_circles_checkbox.checked) {
-        let accumulated_point = Complex(0);
-        const series_point = epicycles[current_time];
-        ctx.strokeStyle = CIRCLE_COLOR;
-        ctx.lineWidth = 1;
-        for (let i = 0; i < harmonics_input.value; i++) {
-            const p = series_point[i];
-            const a = scene_pos_to_canvas({
-                x: accumulated_point.re,
-                y: accumulated_point.im,
-            });
-            const next_point = accumulated_point.add(p);
-            const b = scene_pos_to_canvas({
-                x: next_point.re,
-                y: next_point.im,
-            });
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(
-                a.x,
-                a.y,
-                Math.hypot(a.x - b.x, a.y - b.y),
-                0,
-                2.0 * Math.PI
-            );
-            ctx.stroke();
-            accumulated_point = next_point;
-        }
-        current_time++;
-        if (current_time === epicycles.length) {
-            current_time = 0;
-        }
+        draw_circles(epicycles);
     }
+    draw_series_path();
     ctx.restore();
 }
 
@@ -271,6 +301,7 @@ function stop_animation() {
     current_time = 0;
     clearInterval(animation_interval);
     animation_interval = null;
+    series_path = [];
 }
 
 function add_event_listeners() {
