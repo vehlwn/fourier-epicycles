@@ -24,6 +24,7 @@ let data_points = [];
 let animation_interval = null;
 let current_time = 0;
 let series_path = [];
+let epicycles = [];
 
 function mouse_pos_to_canvas(e) {
     const rect = canvas.getBoundingClientRect();
@@ -174,7 +175,7 @@ function parse_data_points() {
     return ret;
 }
 
-function redraw_scene() {
+function redraw_scene(increment_time = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (show_grid_checkbox.checked) {
         draw_grid();
@@ -184,9 +185,24 @@ function redraw_scene() {
             draw_data_point(scene_pos_to_canvas({ x: p.re, y: p.im }));
         }
     }
+    let last_series_point;
+    if (epicycles.length !== 0 && show_circles_checkbox.checked) {
+        last_series_point = draw_circles();
+    }
+    if (increment_time) {
+        series_path.push(last_series_point);
+        if (series_path.length > epicycles.length + 1) {
+            series_path.shift();
+        }
+        current_time++;
+        if (current_time === epicycles.length) {
+            current_time = 0;
+        }
+    }
+    draw_series_path();
 }
 
-function draw_circles(epicycles) {
+function draw_circles() {
     let accumulated_point = Complex(0);
     const series_point = epicycles[current_time];
     ctx.strokeStyle = CIRCLE_COLOR;
@@ -211,15 +227,7 @@ function draw_circles(epicycles) {
         ctx.stroke();
         accumulated_point = next_point;
     }
-    series_path.push(accumulated_point);
-    if (series_path.length > epicycles.length + 1) {
-        series_path.shift();
-    }
-
-    current_time++;
-    if (current_time === epicycles.length) {
-        current_time = 0;
-    }
+    return accumulated_point;
 }
 
 function draw_series_path() {
@@ -246,16 +254,6 @@ function draw_series_path() {
     ctx.restore();
 }
 
-function animation_step(epicycles) {
-    ctx.save();
-    redraw_scene();
-    if (epicycles.length !== 0 && show_circles_checkbox.checked) {
-        draw_circles(epicycles);
-    }
-    draw_series_path();
-    ctx.restore();
-}
-
 function validate_fps_input() {
     fps_input.value = clamp(fps_input.value, fps_input.min, fps_input.max);
 }
@@ -267,6 +265,12 @@ function validate_precision_input() {
     );
 }
 
+function validate_harmonics_input() {
+    harmonics_input.min = 1;
+    harmonics_input.max = data_points.length;
+    harmonics_input.value = harmonics_input.max;
+}
+
 function start_animation() {
     validate_fps_input();
     validate_precision_input();
@@ -275,23 +279,20 @@ function start_animation() {
     if (data_points.length === 0) {
         return;
     }
-    const { epicycles, coef, freq } = calc_epicycles(
-        data_points,
-        parseInt(precision_input.value)
-    );
-    console.log(get_series_formula(coef, freq));
+    const result = calc_epicycles(data_points, parseInt(precision_input.value));
+    epicycles = result.epicycles;
+    console.log(get_series_formula(result.coef, result.freq));
 
-    harmonics_input.min = 1;
-    harmonics_input.max = data_points.length;
-    harmonics_input.value = harmonics_input.max;
+    validate_harmonics_input();
 
     start_btn.innerHTML = "Stop";
     clear_btn.disabled = true;
 
+    series_path = [];
     animation_interval = setInterval(
-        animation_step,
+        redraw_scene,
         (1.0 / fps_input.value) * 1000.0,
-        epicycles
+        true
     );
 }
 
@@ -301,7 +302,6 @@ function stop_animation() {
     current_time = 0;
     clearInterval(animation_interval);
     animation_interval = null;
-    series_path = [];
 }
 
 function add_event_listeners() {
@@ -317,16 +317,17 @@ function add_event_listeners() {
         }
     });
 
-    show_grid_checkbox.addEventListener("change", () => {
+    const redraw_if_no_animation = () => {
         if (animation_interval === null) {
             redraw_scene();
         }
-    });
-    show_input_points_checkbox.addEventListener("change", () => {
-        if (animation_interval === null) {
-            redraw_scene();
-        }
-    });
+    };
+    show_grid_checkbox.addEventListener("change", redraw_if_no_animation);
+    show_input_points_checkbox.addEventListener(
+        "change",
+        redraw_if_no_animation
+    );
+    show_circles_checkbox.addEventListener("change", redraw_if_no_animation);
     start_btn.addEventListener("click", () => {
         if (animation_interval === null) {
             start_animation();
@@ -336,6 +337,8 @@ function add_event_listeners() {
     });
     clear_btn.addEventListener("click", () => {
         data_points = [];
+        series_path = [];
+        epicycles = [];
         input_data_area.value = "";
         redraw_scene();
     });
