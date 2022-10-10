@@ -5,7 +5,7 @@ import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
 
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
-const CIRCLE_COLOR = "blue";
+const CIRCLE_COLOR = "#8f8fff";
 const SERIES_COLOR = "red";
 
 let canvas;
@@ -185,18 +185,17 @@ function redraw_scene(increment_time = false) {
             draw_data_point(scene_pos_to_canvas({ x: p.re, y: p.im }));
         }
     }
-    let last_series_point;
     if (epicycles.length !== 0 && show_circles_checkbox.checked) {
-        last_series_point = draw_circles();
-    }
-    if (increment_time) {
-        series_path.push(last_series_point);
-        if (series_path.length > epicycles.length + 1) {
-            series_path.shift();
-        }
-        current_time++;
-        if (current_time === epicycles.length) {
-            current_time = 0;
+        const last_series_point = draw_circles();
+        if (increment_time) {
+            series_path.push(last_series_point);
+            if (series_path.length > epicycles.length + 1) {
+                series_path.shift();
+            }
+            current_time++;
+            if (current_time === epicycles.length) {
+                current_time = 0;
+            }
         }
     }
     draw_series_path();
