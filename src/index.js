@@ -7,6 +7,7 @@ const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
 const CIRCLE_COLOR = "#8f8fff";
 const SERIES_COLOR = "red";
+const MIN_DISTANCE_FOR_REMOVING = 0.5;
 
 let canvas;
 let ctx;
@@ -303,16 +304,51 @@ function stop_animation() {
     animation_interval = null;
 }
 
+function add_input_point(canvas_pos) {
+    if (show_input_points_checkbox.checked) {
+        draw_data_point(canvas_pos);
+    }
+    const scene_pos = canvas_pos_to_scene(canvas_pos);
+    add_data_point_to_textarea(scene_pos);
+    data_points.push(Complex(scene_pos.x, scene_pos.y));
+}
+
+function delete_input_point(canvas_pos) {
+    const scene_pos = (() => {
+        const tmp = canvas_pos_to_scene(canvas_pos);
+        return Complex(tmp.x, tmp.y);
+    })();
+    let min_point_index = -1;
+    let min_distance = Infinity;
+    for (let i = 0; i < data_points.length; i++) {
+        const distance = scene_pos.sub(data_points[i]).abs();
+        if (distance < MIN_DISTANCE_FOR_REMOVING) {
+            if (distance < min_distance) {
+                min_distance = distance;
+                min_point_index = i;
+            }
+        }
+    }
+    if (min_point_index === -1) {
+        return;
+    }
+    data_points.splice(min_point_index, 1);
+    input_data_area.value = "";
+    for (const p of data_points) {
+        add_data_point_to_textarea({ x: p.re, y: p.im });
+    }
+    redraw_scene();
+}
+
 function add_event_listeners() {
     canvas.addEventListener("click", (e) => {
         if (animation_interval === null) {
             const canvas_pos = mouse_pos_to_canvas(e);
-            if (show_input_points_checkbox.checked) {
-                draw_data_point(canvas_pos);
+            if (e.altKey) {
+                delete_input_point(canvas_pos);
+            } else {
+                add_input_point(canvas_pos);
             }
-            const scene_pos = canvas_pos_to_scene(canvas_pos);
-            add_data_point_to_textarea(scene_pos);
-            data_points.push(Complex(scene_pos.x, scene_pos.y));
         }
     });
 
