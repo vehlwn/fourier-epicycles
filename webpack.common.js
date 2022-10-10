@@ -13,7 +13,6 @@ module.exports = {
             template: path.resolve(__dirname, "src", "index.html"),
         }),
     ],
-    devtool: "inline-source-map",
     optimization: {
         runtimeChunk: "single",
         moduleIds: "deterministic",
