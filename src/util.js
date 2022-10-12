@@ -1,5 +1,3 @@
-"use strict";
-
 import Complex from "complex.js";
 
 export function clamp(v, lo, hi) {
@@ -64,9 +62,13 @@ export function calc_epicycles(input, n) {
         const compare_abs = (a, b) => {
             const a_abs = a.abs();
             const b_abs = b.abs();
-            if (a_abs < b_abs) return -1;
-            else if (a_abs > b_abs) return 1;
-            else return 0;
+            if (a_abs < b_abs) {
+                return -1;
+            } else if (a_abs > b_abs) {
+                return 1;
+            } else {
+                return 0;
+            }
         };
         one_point.sort((a, b) => -compare_abs(a, b));
         ret.push(one_point);

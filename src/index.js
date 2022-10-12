@@ -1,5 +1,3 @@
-"use strict";
-
 import Complex from "complex.js";
 import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
 
@@ -67,8 +65,8 @@ function draw_grid() {
 
         let text = (i * 2).toString();
         let metrics = ctx.measureText(text);
-        let text_width =
-            metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
+        const text_width
+            = metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
         ctx.fillText(
             text,
             x - text_width / 2,
@@ -166,11 +164,17 @@ function parse_data_points() {
     for (let line of input_data_area.value.split("\n")) {
         line = line.trim();
         const split_pos = line.split(/\s+/, 2);
-        if (split_pos.length !== 2) continue;
+        if (split_pos.length !== 2) {
+            continue;
+        }
         const x = parseFloat(split_pos[0]);
-        if (Number.isNaN(x)) continue;
+        if (Number.isNaN(x)) {
+            continue;
+        }
         const y = parseFloat(split_pos[1]);
-        if (Number.isNaN(y)) continue;
+        if (Number.isNaN(y)) {
+            continue;
+        }
         ret.push(Complex(x, y));
     }
     return ret;
@@ -211,12 +215,12 @@ function draw_circles() {
         const p = series_point[i];
         const a = scene_pos_to_canvas({
             x: accumulated_point.re,
-            y: accumulated_point.im,
+            y: accumulated_point.im
         });
         const next_point = accumulated_point.add(p);
         const b = scene_pos_to_canvas({
             x: next_point.re,
-            y: next_point.im,
+            y: next_point.im
         });
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -238,11 +242,11 @@ function draw_series_path() {
     const draw_line = (i, j) => {
         const a = scene_pos_to_canvas({
             x: series_path[i].re,
-            y: series_path[i].im,
+            y: series_path[i].im
         });
         const b = scene_pos_to_canvas({
             x: series_path[j].re,
-            y: series_path[j].im,
+            y: series_path[j].im
         });
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -255,19 +259,33 @@ function draw_series_path() {
 }
 
 function validate_fps_input() {
-    fps_input.value = clamp(fps_input.value, fps_input.min, fps_input.max);
+    const tmp = clamp(
+        parseInt(fps_input.value, 10),
+        parseInt(fps_input.min, 10),
+        parseInt(fps_input.max, 10)
+    );
+    if (Number.isNaN(tmp)) {
+        fps_input.value = "20";
+    } else {
+        fps_input.value = tmp.toString();
+    }
 }
 
 function validate_precision_input() {
-    precision_input.value = Math.max(
-        precision_input.value,
-        precision_input.min
+    const tmp = Math.max(
+        parseInt(precision_input.value, 10),
+        parseInt(precision_input.min, 10)
     );
+    if (Number.isNaN(tmp)) {
+        precision_input.value = "100";
+    } else {
+        precision_input.value = tmp.toString();
+    }
 }
 
 function validate_harmonics_input() {
-    harmonics_input.min = 1;
-    harmonics_input.max = data_points.length;
+    harmonics_input.min = "1";
+    harmonics_input.max = data_points.length.toString();
     harmonics_input.value = harmonics_input.max;
 }
 
@@ -279,7 +297,7 @@ function start_animation() {
     if (data_points.length === 0) {
         return;
     }
-    const result = calc_epicycles(data_points, parseInt(precision_input.value));
+    const result = calc_epicycles(data_points, parseInt(precision_input.value, 10));
     epicycles = result.epicycles;
     console.log(get_series_formula(result.coef, result.freq));
 
@@ -358,10 +376,7 @@ function add_event_listeners() {
         }
     };
     show_grid_checkbox.addEventListener("change", redraw_if_no_animation);
-    show_input_points_checkbox.addEventListener(
-        "change",
-        redraw_if_no_animation
-    );
+    show_input_points_checkbox.addEventListener("change", redraw_if_no_animation);
     show_circles_checkbox.addEventListener("change", redraw_if_no_animation);
     start_btn.addEventListener("click", () => {
         if (animation_interval === null) {
