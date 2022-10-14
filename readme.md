@@ -52,4 +52,10 @@ f_j = \begin{cases}
 \end{cases}
 $$
 
+## Examples
+
+![example 1](examples/1.png)
+
+![example 2](examples/2.png)
+
 ### vim: textwidth=85
