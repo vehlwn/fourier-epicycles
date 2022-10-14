@@ -17,6 +17,13 @@ with varying time argument.
 
 `Clear` button removes all points.
 
+## Build
+
+```bash
+$ npm run dev
+$ python3 -m http.server --bind 127.0.0.1 5000 -d dist
+```
+
 ## Details
 
 Put $N$ be the length of a sequence of complex numbers
