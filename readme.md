@@ -20,6 +20,7 @@ with varying time argument.
 ## Build
 
 ```bash
+$ npm install
 $ npm run dev
 $ python3 -m http.server --bind 127.0.0.1 5000 -d dist
 ```
