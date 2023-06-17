@@ -65,8 +65,8 @@ function draw_grid() {
 
         let text = (i * 2).toString();
         let metrics = ctx.measureText(text);
-        const text_width
-            = metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
+        const text_width =
+            metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
         ctx.fillText(
             text,
             x - text_width / 2,
@@ -410,4 +410,6 @@ window.onload = () => {
     draw_grid();
 
     add_event_listeners();
+
+    document.getElementById("no-script-warning").remove();
 };
