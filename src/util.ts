@@ -1,16 +1,16 @@
 import Complex from "complex.js";
 
-export function clamp(v, lo, hi) {
+export function clamp(v: number, lo: number, hi: number): number {
     return Math.max(lo, Math.min(v, hi));
 }
 
-export function lerp(x, xp, yp) {
+export function lerp(x: number, xp: number[], yp: number[]): number {
     const a = (yp[1] - yp[0]) / (xp[1] - xp[0]);
     const b = yp[0] - xp[0] * a;
     return a * x + b;
 }
 
-function linspace(start, stop, num) {
+function linspace(start: number, stop: number, num: number): number[] {
     const ret = [];
     for (let i = 0; i < num; i++) {
         ret.push(lerp(i, [0, num - 1], [start, stop]));
@@ -18,7 +18,7 @@ function linspace(start, stop, num) {
     return ret;
 }
 
-function dft(input, inverse = false) {
+function dft(input: Complex[], inverse = false): Complex[] {
     const N = input.length;
     const ret = [];
     for (let i = 0; i < N; i++) {
@@ -37,7 +37,7 @@ function dft(input, inverse = false) {
     return ret;
 }
 
-function calc_frequencies(N) {
+function calc_frequencies(N: number): number[] {
     const ret = [];
     for (let n = 0; n < N; n++) {
         const frequecy = n > Math.floor(N / 2) ? n - N : n;
@@ -46,7 +46,13 @@ function calc_frequencies(N) {
     return ret;
 }
 
-export function calc_epicycles(input, n) {
+export interface EpicyclesResult {
+    epicycles: Complex[][];
+    coef: Complex[];
+    freq: number[];
+}
+
+export function calc_epicycles(input: Complex[], n: number): EpicyclesResult {
     const N = input.length;
     const coef = dft(input);
     const freq = calc_frequencies(N);
@@ -59,7 +65,7 @@ export function calc_epicycles(input, n) {
             const tmp = Complex(0, (2 * Math.PI * t * freq[n]) / N);
             one_point.push(coef[n].mul(tmp.exp()).div(Complex(Math.sqrt(N))));
         }
-        const compare_abs = (a, b) => {
+        const compare_abs = (a: Complex, b: Complex) => {
             const a_abs = a.abs();
             const b_abs = b.abs();
             if (a_abs < b_abs) {
@@ -76,11 +82,11 @@ export function calc_epicycles(input, n) {
     return { epicycles: ret, coef, freq };
 }
 
-function round(x, n) {
+function round(x: number, n: number): number {
     return Math.round(x * 10 ** n) / 10 ** n;
 }
 
-export function get_series_formula(coef, freq) {
+export function get_series_formula(coef: Complex[], freq: number[]): string {
     const N = coef.length;
     let ret = `f(t) = 1/sqrt(${N}) * (`;
     let comma = "";

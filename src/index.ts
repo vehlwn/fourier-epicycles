@@ -1,5 +1,5 @@
 import Complex from "complex.js";
-import { lerp, calc_epicycles, clamp, get_series_formula } from "./util.js";
+import { lerp, calc_epicycles, clamp, get_series_formula } from "./util";
 
 const DATA_POINT_SIZE = 3;
 const DATA_POINT_COLOR = "black";
@@ -7,36 +7,41 @@ const CIRCLE_COLOR = "#8f8fff";
 const SERIES_COLOR = "red";
 const MIN_DISTANCE_FOR_REMOVING = 0.5;
 
-let canvas;
-let ctx;
-let start_btn;
-let clear_btn;
-let input_data_area;
-let show_grid_checkbox;
-let show_input_points_checkbox;
-let show_circles_checkbox;
-let harmonics_input;
-let precision_input;
-let fps_input;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let start_btn: HTMLButtonElement;
+let clear_btn: HTMLButtonElement;
+let input_data_area: HTMLTextAreaElement;
+let show_grid_checkbox: HTMLInputElement;
+let show_input_points_checkbox: HTMLInputElement;
+let show_circles_checkbox: HTMLInputElement;
+let harmonics_input: HTMLInputElement;
+let precision_input: HTMLInputElement;
+let fps_input: HTMLInputElement;
 
-let data_points = [];
-let animation_interval = null;
+let data_points: Complex[] = [];
+let animation_interval: number = null;
 let current_time = 0;
-let series_path = [];
-let epicycles = [];
+let series_path: Complex[] = [];
+let epicycles: Complex[][] = [];
 
-function mouse_pos_to_canvas(e) {
+interface Point {
+    x: number;
+    y: number;
+}
+
+function mouse_pos_to_canvas(e: MouseEvent): Point {
     const rect = canvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
-function canvas_pos_to_scene(pos) {
+function canvas_pos_to_scene(pos: Point): Point {
     const x = lerp(pos.x, [0, canvas.width], [-10, 10]);
     const y = lerp(pos.y, [0, canvas.height], [10, -10]);
     return { x, y };
 }
 
-function scene_pos_to_canvas(pos) {
+function scene_pos_to_canvas(pos: Point): Point {
     const x = lerp(pos.x, [-10, 10], [0, canvas.width]);
     const y = lerp(pos.y, [-10, 10], [canvas.height, 0]);
     return { x, y };
@@ -65,8 +70,8 @@ function draw_grid() {
 
         let text = (i * 2).toString();
         let metrics = ctx.measureText(text);
-        const text_width =
-            metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
+        const text_width
+            = metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
         ctx.fillText(
             text,
             x - text_width / 2,
@@ -142,7 +147,7 @@ function draw_grid() {
     ctx.restore();
 }
 
-function draw_data_point(canvas_pos) {
+function draw_data_point(canvas_pos: Point) {
     ctx.save();
     ctx.beginPath();
     ctx.fillStyle = DATA_POINT_COLOR;
@@ -151,7 +156,7 @@ function draw_data_point(canvas_pos) {
     ctx.restore();
 }
 
-function add_data_point_to_textarea(scene_pos) {
+function add_data_point_to_textarea(scene_pos: Point) {
     let ret = scene_pos.x.toFixed(3);
     ret += " ";
     ret += scene_pos.y.toFixed(3);
@@ -159,7 +164,7 @@ function add_data_point_to_textarea(scene_pos) {
     input_data_area.value += ret;
 }
 
-function parse_data_points() {
+function parse_data_points(): Complex[] {
     const ret = [];
     for (let line of input_data_area.value.split("\n")) {
         line = line.trim();
@@ -211,7 +216,8 @@ function draw_circles() {
     const series_point = epicycles[current_time];
     ctx.strokeStyle = CIRCLE_COLOR;
     ctx.lineWidth = 1;
-    for (let i = 0; i < harmonics_input.value; i++) {
+    const max_harmonics = parseInt(harmonics_input.value, 10);
+    for (let i = 0; i < max_harmonics; i++) {
         const p = series_point[i];
         const a = scene_pos_to_canvas({
             x: accumulated_point.re,
@@ -239,7 +245,7 @@ function draw_series_path() {
     ctx.strokeStyle = SERIES_COLOR;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    const draw_line = (i, j) => {
+    const draw_line = (i: number, j: number) => {
         const a = scene_pos_to_canvas({
             x: series_path[i].re,
             y: series_path[i].im
@@ -306,10 +312,11 @@ function start_animation() {
     start_btn.innerHTML = "Stop";
     clear_btn.disabled = true;
 
+    const fps_value = parseInt(fps_input.value, 10);
     series_path = [];
-    animation_interval = setInterval(
+    animation_interval = window.setInterval(
         redraw_scene,
-        (1.0 / fps_input.value) * 1000.0,
+        (1.0 / fps_value) * 1000.0,
         true
     );
 }
@@ -318,11 +325,11 @@ function stop_animation() {
     start_btn.innerHTML = "Start";
     clear_btn.disabled = false;
     current_time = 0;
-    clearInterval(animation_interval);
+    window.clearInterval(animation_interval);
     animation_interval = null;
 }
 
-function add_input_point(canvas_pos) {
+function add_input_point(canvas_pos: Point) {
     if (show_input_points_checkbox.checked) {
         draw_data_point(canvas_pos);
     }
@@ -331,7 +338,7 @@ function add_input_point(canvas_pos) {
     data_points.push(Complex(scene_pos.x, scene_pos.y));
 }
 
-function delete_input_point(canvas_pos) {
+function delete_input_point(canvas_pos: Point) {
     const scene_pos = (() => {
         const tmp = canvas_pos_to_scene(canvas_pos);
         return Complex(tmp.x, tmp.y);
@@ -395,17 +402,21 @@ function add_event_listeners() {
 }
 
 window.onload = () => {
-    canvas = document.getElementById("main-scene");
+    canvas = document.getElementById("main-scene") as HTMLCanvasElement;
     ctx = canvas.getContext("2d");
-    input_data_area = document.getElementById("input-data");
-    show_grid_checkbox = document.getElementById("show-grid");
-    show_input_points_checkbox = document.getElementById("show-input-points");
-    show_circles_checkbox = document.getElementById("show-circles");
-    harmonics_input = document.getElementById("harmonics");
-    precision_input = document.getElementById("precision");
-    fps_input = document.getElementById("fps");
-    start_btn = document.getElementById("start-btn");
-    clear_btn = document.getElementById("clear-btn");
+    input_data_area = document.getElementById("input-data") as HTMLTextAreaElement;
+    show_grid_checkbox = document.getElementById("show-grid") as HTMLInputElement;
+    show_input_points_checkbox = document.getElementById(
+        "show-input-points"
+    ) as HTMLInputElement;
+    show_circles_checkbox = document.getElementById(
+        "show-circles"
+    ) as HTMLInputElement;
+    harmonics_input = document.getElementById("harmonics") as HTMLInputElement;
+    precision_input = document.getElementById("precision") as HTMLInputElement;
+    fps_input = document.getElementById("fps") as HTMLInputElement;
+    start_btn = document.getElementById("start-btn") as HTMLButtonElement;
+    clear_btn = document.getElementById("clear-btn") as HTMLButtonElement;
 
     draw_grid();
 
