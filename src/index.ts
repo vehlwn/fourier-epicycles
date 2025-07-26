@@ -20,7 +20,7 @@ let precision_input: HTMLInputElement;
 let fps_input: HTMLInputElement;
 
 let data_points: Complex[] = [];
-let animation_interval: number = null;
+let animation_interval: number = 0;
 let current_time = 0;
 let series_path: Complex[] = [];
 let epicycles: Complex[][] = [];
@@ -70,8 +70,8 @@ function draw_grid() {
 
         let text = (i * 2).toString();
         let metrics = ctx.measureText(text);
-        const text_width
-            = metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
+        const text_width =
+            metrics.actualBoundingBoxRight + metrics.actualBoundingBoxLeft;
         ctx.fillText(
             text,
             x - text_width / 2,
@@ -326,7 +326,7 @@ function stop_animation() {
     clear_btn.disabled = false;
     current_time = 0;
     window.clearInterval(animation_interval);
-    animation_interval = null;
+    animation_interval = 0;
 }
 
 function add_input_point(canvas_pos: Point) {
@@ -367,7 +367,7 @@ function delete_input_point(canvas_pos: Point) {
 
 function add_event_listeners() {
     canvas.addEventListener("click", (e) => {
-        if (animation_interval === null) {
+        if (animation_interval === 0) {
             const canvas_pos = mouse_pos_to_canvas(e);
             if (e.altKey) {
                 delete_input_point(canvas_pos);
@@ -386,7 +386,7 @@ function add_event_listeners() {
     show_input_points_checkbox.addEventListener("change", redraw_if_no_animation);
     show_circles_checkbox.addEventListener("change", redraw_if_no_animation);
     start_btn.addEventListener("click", () => {
-        if (animation_interval === null) {
+        if (animation_interval === 0) {
             start_animation();
         } else {
             stop_animation();
@@ -403,7 +403,12 @@ function add_event_listeners() {
 
 window.onload = () => {
     canvas = document.getElementById("main-scene") as HTMLCanvasElement;
-    ctx = canvas.getContext("2d");
+
+    const context = canvas.getContext("2d");
+    if (context === null) {
+        throw new Error("Unexpected null canvas context!");
+    }
+    ctx = context;
     input_data_area = document.getElementById("input-data") as HTMLTextAreaElement;
     show_grid_checkbox = document.getElementById("show-grid") as HTMLInputElement;
     show_input_points_checkbox = document.getElementById(
@@ -421,6 +426,4 @@ window.onload = () => {
     draw_grid();
 
     add_event_listeners();
-
-    document.getElementById("no-script-warning").remove();
 };

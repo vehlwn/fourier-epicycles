@@ -4,30 +4,26 @@
     "description": "",
     "main": "index.js",
     "private": true,
+    "type": "module",
     "scripts": {
-        "dev": "webpack --config webpack.dev.js",
-        "prod": "webpack --config webpack.prod.js"
+        "dev": "vite",
+        "build": "tsc && eslint src && vite build",
+        "format": "npx prettier . --write",
+        "preview": "vite preview"
     },
     "keywords": [],
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^6.7.4",
-        "@typescript-eslint/parser": "^6.7.4",
-        "eslint": "^8.50.0",
-        "eslint-config-standard": "^17.0.0",
-        "eslint-plugin-import": "^2.26.0",
-        "eslint-plugin-n": "^15.3.0",
-        "eslint-plugin-promise": "^6.0.1",
-        "html-webpack-plugin": "^5.5.0",
         "prettier": "2.7.1",
-        "ts-loader": "^9.4.4",
-        "typescript": "^5.2.2",
-        "webpack": "^5.74.0",
-        "webpack-cli": "^4.10.0",
-        "webpack-merge": "^5.8.0"
+        "typescript": "~5.8.3",
+        "vite": "7.0.6",
+        "@eslint/js": "9.32.0",
+        "eslint": "9.32.0",
+        "prettier": "3.6.2",
+        "typescript-eslint": "8.38.0"
     },
     "dependencies": {
-        "complex.js": "^2.1.1"
+        "complex.js": "2.4.2"
     }
 }

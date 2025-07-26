@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -31,9 +31,9 @@
         <table>
             <tr>
                 <td style="vertical-align: top">
-                    <p id="no-script-warning">
+                    <noscript id="no-script-warning">
                         Your browser does not support JavaScript!
-                    </p>
+                    </noscript>
                     <canvas id="main-scene" width="600" height="600"
                         >Your browser does not support JavaScript!</canvas
                     >
@@ -132,5 +132,7 @@
             <hr />
             <a href="https://github.com/vehlwn/fourier-epicycles">Source code</a>
         </footer>
+
+        <script type="module" src="/src/index.ts"></script>
     </body>
 </html>
