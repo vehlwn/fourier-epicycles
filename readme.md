@@ -21,8 +21,10 @@ with varying time argument.
 
 ```bash
 $ npm install
-$ npm run dev
+$ npm run build
 $ python3 -m http.server --bind 127.0.0.1 5000 -d dist
+# Alternatively start vite dev server:
+$ npm run dev -- --port 5000
 ```
 
 ## Details

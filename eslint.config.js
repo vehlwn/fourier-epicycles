@@ -10,7 +10,8 @@ export default tseslint.config(
         rules: {
             "no-implicit-coercion": "error",
             curly: "error",
-            eqeqeq: "error"
+            eqeqeq: "error",
+            "@typescript-eslint/no-unused-vars": "warn"
         }
     }
 );
