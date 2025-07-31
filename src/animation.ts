@@ -1,4 +1,4 @@
-import { lerp, type Point, min } from "./util";
+import { lerp, min } from "./util";
 import * as config from "./config";
 
 import Complex from "complex.js";
@@ -19,9 +19,9 @@ export class AnimationView {
         return this.canvas_context;
     }
 
-    add_data_point_to_textarea(scene_pos: Point) {
-        const x_str = scene_pos.x.toFixed(3);
-        const y_str = scene_pos.y.toFixed(3);
+    add_data_point_to_textarea(scene_pos: Complex) {
+        const x_str = scene_pos.re.toFixed(3);
+        const y_str = scene_pos.im.toFixed(3);
         const ret = `${x_str} ${y_str}\n`;
         this.input_data_area.value += ret;
     }
@@ -29,7 +29,7 @@ export class AnimationView {
     reset_input_points(data: Complex[]) {
         this.input_data_area.value = "";
         for (const p of data) {
-            this.add_data_point_to_textarea({ x: p.re, y: p.im });
+            this.add_data_point_to_textarea(p);
         }
     }
 }
@@ -64,8 +64,8 @@ export class AnimationState {
         this.looped = false;
     }
 
-    add_input_point(scene_pos: Point) {
-        this.input_points.push(Complex(scene_pos.x, scene_pos.y));
+    add_input_point(scene_pos: Complex) {
+        this.input_points.push(scene_pos);
     }
 
     set_input_points(data: Complex[]) {
@@ -187,7 +187,7 @@ export class AnimationController {
         this.model.set_circles(data);
     }
 
-    add_input_point(canvas_pos: Point) {
+    add_input_point(canvas_pos: Complex) {
         if (this.controls.show_input_points_checked()) {
             this.draw_data_point(canvas_pos);
         }
@@ -196,17 +196,13 @@ export class AnimationController {
         this.view.add_data_point_to_textarea(scene_pos);
     }
 
-    delete_closest_point(canvas_pos: Point) {
-        const scene_pos = (() => {
-            const tmp = this.canvas_pos_to_scene(canvas_pos);
-            return Complex(tmp.x, tmp.y);
-        })();
+    delete_closest_point(canvas_pos: Complex) {
         let min_point;
         try {
             const pos = min(
                 this.model
                     .get_input_points()
-                    .map((x) => x.sub(scene_pos))
+                    .map((x) => x.sub(this.canvas_pos_to_scene(canvas_pos)))
                     .map((x) => x.abs())
                     .map((x, i) => [x, i])
                     .filter(([x]) => x < config.MIN_DISTANCE_FOR_REMOVING),
@@ -259,7 +255,7 @@ export class AnimationController {
         }
         if (this.controls.show_input_points_checked()) {
             for (const p of this.model.get_input_points()) {
-                this.draw_data_point(this.scene_pos_to_canvas({ x: p.re, y: p.im }));
+                this.draw_data_point(this.scene_pos_to_canvas(p));
             }
         }
         if (
@@ -271,14 +267,14 @@ export class AnimationController {
         this.draw_series_path();
     }
 
-    private draw_data_point(canvas_pos: Point) {
+    private draw_data_point(canvas_pos: Complex) {
         const ctx = this.view.ctx();
         ctx.save();
         ctx.beginPath();
         ctx.fillStyle = config.DATA_POINT_COLOR;
         ctx.arc(
-            canvas_pos.x,
-            canvas_pos.y,
+            canvas_pos.re,
+            canvas_pos.im,
             config.DATA_POINT_SIZE,
             0,
             2.0 * Math.PI
@@ -287,18 +283,18 @@ export class AnimationController {
         ctx.restore();
     }
 
-    private scene_pos_to_canvas(pos: Point): Point {
+    private scene_pos_to_canvas(pos: Complex): Complex {
         const canvas = this.view.ctx().canvas;
-        const x = lerp(pos.x, [-10, 10], [0, canvas.width]);
-        const y = lerp(pos.y, [-10, 10], [canvas.height, 0]);
-        return { x, y };
+        const x = lerp(pos.re, [-10, 10], [0, canvas.width]);
+        const y = lerp(pos.im, [-10, 10], [canvas.height, 0]);
+        return Complex(x, y);
     }
 
-    private canvas_pos_to_scene(pos: Point): Point {
+    private canvas_pos_to_scene(pos: Complex): Complex {
         const canvas = this.view.ctx().canvas;
-        const x = lerp(pos.x, [0, canvas.width], [-10, 10]);
-        const y = lerp(pos.y, [0, canvas.height], [10, -10]);
-        return { x, y };
+        const x = lerp(pos.re, [0, canvas.width], [-10, 10]);
+        const y = lerp(pos.im, [0, canvas.height], [10, -10]);
+        return Complex(x, y);
     }
 
     private draw_grid() {
@@ -415,21 +411,15 @@ export class AnimationController {
         let partial_sum = Complex(0);
         for (let i = 0; i < max_harmonics; i++) {
             const p = t_circles[i];
-            const a = this.scene_pos_to_canvas({
-                x: partial_sum.re,
-                y: partial_sum.im
-            });
+            const a = this.scene_pos_to_canvas(partial_sum);
             const next_point = partial_sum.add(p);
-            const b = this.scene_pos_to_canvas({
-                x: next_point.re,
-                y: next_point.im
-            });
+            const b = this.scene_pos_to_canvas(next_point);
             ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
+            ctx.moveTo(a.re, a.im);
+            ctx.lineTo(b.re, b.im);
             ctx.stroke();
             ctx.beginPath();
-            ctx.arc(a.x, a.y, Math.hypot(a.x - b.x, a.y - b.y), 0, 2.0 * Math.PI);
+            ctx.arc(a.re, a.im, a.sub(b).abs(), 0, 2.0 * Math.PI);
             ctx.stroke();
             partial_sum = next_point;
         }
@@ -444,16 +434,10 @@ export class AnimationController {
         ctx.beginPath();
 
         const draw_line_segment = (begin: Complex, end: Complex) => {
-            const a = this.scene_pos_to_canvas({
-                x: begin.re,
-                y: begin.im
-            });
-            const b = this.scene_pos_to_canvas({
-                x: end.re,
-                y: end.im
-            });
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
+            const a = this.scene_pos_to_canvas(begin);
+            const b = this.scene_pos_to_canvas(end);
+            ctx.moveTo(a.re, a.im);
+            ctx.lineTo(b.re, b.im);
         };
 
         let prev_point = null;

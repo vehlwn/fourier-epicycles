@@ -46,47 +46,46 @@
                     ></textarea>
 
                     <div>
-                        <input
-                            type="checkbox"
-                            id="show-grid"
-                            name="show-grid"
-                            checked
-                        />
-                        <label for="show-grid" class="prevent-select"
-                            >Show grid</label
-                        >
+                        <label class="prevent-select">
+                            <input
+                                type="checkbox"
+                                id="show-grid"
+                                name="show-grid"
+                                checked
+                            />
+                            Show grid
+                        </label>
                     </div>
                     <div>
-                        <input
-                            type="checkbox"
-                            id="show-input-points"
-                            name="show-input-points"
-                            checked
-                        />
-                        <label for="show-input-points" class="prevent-select"
-                            >Show input points</label
-                        >
+                        <label for="show-input-points" class="prevent-select">
+                            <input
+                                type="checkbox"
+                                id="show-input-points"
+                                name="show-input-points"
+                                checked
+                            />
+                            Show input points
+                        </label>
                     </div>
                     <div>
-                        <input
-                            type="checkbox"
-                            id="show-circles"
-                            name="show-circles"
-                            checked
-                        />
-                        <label for="show-circles" class="prevent-select"
-                            >Show circles</label
-                        >
+                        <label for="show-circles" class="prevent-select">
+                            <input
+                                type="checkbox"
+                                id="show-circles"
+                                name="show-circles"
+                                checked
+                            />
+                            Show circles
+                        </label>
                     </div>
 
                     <table>
                         <tr>
-                            <td><label for="quantity">Harmonics:</label></td>
+                            <td><label for="harmonics">Harmonics:</label></td>
                             <td>
                                 <input
                                     type="range"
                                     id="harmonics"
-                                    name="harmonics"
                                     min="1"
                                     max="1"
                                     value="1"
@@ -94,27 +93,36 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><label for="quantity">Precision:</label></td>
+                            <td><label for="precision">Precision:</label></td>
                             <td>
                                 <input
                                     type="number"
                                     id="precision"
-                                    name="precision"
                                     min="2"
                                     value="100"
                                 />
                             </td>
                         </tr>
                         <tr>
-                            <td><label for="FPS">FPS:</label></td>
+                            <td><label for="fps">FPS:</label></td>
                             <td>
                                 <input
                                     type="number"
                                     id="fps"
-                                    name="fps"
                                     min="1"
                                     max="100"
                                     value="20"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="density">Drawing density:</label></td>
+                            <td>
+                                <input
+                                    type="range"
+                                    id="density"
+                                    min="-200"
+                                    max="-80"
                                 />
                             </td>
                         </tr>

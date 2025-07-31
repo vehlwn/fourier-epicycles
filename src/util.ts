@@ -85,11 +85,6 @@ export function get_series_formula(coef: Complex[], freq: number[]): string {
     return ret;
 }
 
-export interface Point {
-    x: number;
-    y: number;
-}
-
 export function min<T>(data: T[], comp: (l: T, r: T) => boolean): T {
     interface EnumerateValue {
         elem: T;

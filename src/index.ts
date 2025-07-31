@@ -1,5 +1,5 @@
 import Complex from "complex.js";
-import { calc_epicycles, clamp, get_series_formula, type Point } from "./util";
+import { calc_epicycles, clamp, get_series_formula } from "./util";
 import { AnimationController, AnimationView } from "./animation";
 
 let canvas: HTMLCanvasElement;
@@ -13,13 +13,9 @@ let show_circles_checkbox: HTMLInputElement;
 let harmonics_input: HTMLInputElement;
 let precision_input: HTMLInputElement;
 let fps_input: HTMLInputElement;
+let drawing_density: HTMLInputElement;
 
 let animation_controller: AnimationController;
-
-function mouse_pos_to_canvas(e: MouseEvent): Point {
-    const rect = canvas.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-}
 
 function parse_data_points(): Complex[] {
     const ret = [];
@@ -105,18 +101,49 @@ function stop_animation() {
     animation_controller.stop();
 }
 
-function add_event_listeners() {
-    canvas.addEventListener("click", (e) => {
-        if (!animation_controller.is_started()) {
-            const canvas_pos = mouse_pos_to_canvas(e);
-            if (e.altKey) {
-                animation_controller.delete_closest_point(canvas_pos);
-            } else {
-                animation_controller.add_input_point(canvas_pos);
-            }
+function can_edit_point() {
+    return !animation_controller.is_started();
+}
+
+function add_or_delete_point(e: MouseEvent) {
+    if (can_edit_point()) {
+        const canvas_point = Complex(e.offsetX, e.offsetY);
+        if (e.altKey) {
+            animation_controller.delete_closest_point(canvas_point);
+        } else {
+            animation_controller.add_input_point(canvas_point);
+        }
+    }
+}
+
+function get_timestamp() {
+    return performance.now();
+}
+
+function add_canvas_events() {
+    let is_mouse_down = false;
+    let last_mouse_move_ts = 0;
+
+    canvas.addEventListener("mousedown", (e) => {
+        is_mouse_down = true;
+        last_mouse_move_ts = get_timestamp();
+        add_or_delete_point(e);
+    });
+    window.addEventListener("mouseup", () => {
+        is_mouse_down = false;
+    });
+    canvas.addEventListener("mousemove", (e) => {
+        const now = get_timestamp();
+        const delay = -Number.parseInt(drawing_density.value);
+        if (is_mouse_down && can_edit_point() && now - last_mouse_move_ts >= delay) {
+            add_or_delete_point(e);
+            last_mouse_move_ts = now;
         }
     });
+}
 
+function add_event_listeners() {
+    add_canvas_events();
     show_grid_checkbox.addEventListener("change", () => {
         animation_controller.set_show_grid(show_grid_checkbox.checked);
     });
@@ -166,6 +193,8 @@ window.onload = () => {
     harmonics_input = document.getElementById("harmonics") as HTMLInputElement;
     precision_input = document.getElementById("precision") as HTMLInputElement;
     fps_input = document.getElementById("fps") as HTMLInputElement;
+    drawing_density = document.getElementById("density") as HTMLInputElement;
+
     start_btn = document.getElementById("start-btn") as HTMLButtonElement;
     clear_btn = document.getElementById("clear-btn") as HTMLButtonElement;
 
