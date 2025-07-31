@@ -23,21 +23,19 @@
             footer {
                 text-align: center;
             }
-            #no-script-warning {
+            noscript {
                 color: red;
             }
         </style>
     </head>
     <body>
+        <noscript> Your browser does not support JavaScript! </noscript>
         <table>
             <tr>
                 <td style="vertical-align: top">
-                    <noscript id="no-script-warning">
+                    <canvas id="main-scene" width="600" height="600">
                         Your browser does not support JavaScript!
-                    </noscript>
-                    <canvas id="main-scene" width="600" height="600"
-                        >Your browser does not support JavaScript!</canvas
-                    >
+                    </canvas>
                 </td>
                 <td style="vertical-align: top">
                     <textarea
