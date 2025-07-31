@@ -10,6 +10,8 @@ be edited either manually or by clicking on the canvas to the left.
 
 LMB -- add point.
 
+Move mouse while holding LMB - add multiple points.
+
 Alt+LMB -- remove point.
 
 `Start` button calculates Fourier coefficients from input points and starts animation
