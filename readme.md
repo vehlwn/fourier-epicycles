@@ -59,8 +59,10 @@ $$
 
 ## Examples
 
-![example 1](examples/1.png)
+Figure 1:
 
-![example 2](examples/2.png)
+![Figure1](examples/figure1.png)
 
-### vim: textwidth=85
+Figure 2:
+
+![Figure2](examples/figure2.png)
