@@ -6,132 +6,125 @@
 
         <title>Fourier Epicycles</title>
         <link rel="icon" type="image/png" href="icon.png" />
-
-        <style>
-            #main-scene {
-                border: 1px solid black;
-                /*image-rendering: pixelated;*/
-            }
-            .prevent-select {
-                -webkit-user-select: none; /* Safari */
-                -ms-user-select: none; /* IE 10 and IE 11 */
-                user-select: none; /* Standard syntax */
-            }
-            [type="checkbox"] {
-                vertical-align: middle;
-            }
-            footer {
-                text-align: center;
-            }
-            noscript {
-                color: red;
-            }
-        </style>
     </head>
     <body>
-        <noscript> Your browser does not support JavaScript! </noscript>
-        <table>
-            <tr>
-                <td style="vertical-align: top">
-                    <canvas id="main-scene" width="600" height="600">
-                        Your browser does not support JavaScript!
-                    </canvas>
-                </td>
-                <td style="vertical-align: top">
-                    <textarea
-                        id="input-data"
-                        rows="20"
-                        autocomplete="off"
-                    ></textarea>
+        <noscript style="color: red">
+            Your browser does not support JavaScript!
+        </noscript>
 
-                    <div>
-                        <label class="prevent-select">
-                            <input
-                                type="checkbox"
-                                id="show-grid"
-                                name="show-grid"
-                                checked
-                            />
-                            Show grid
-                        </label>
-                    </div>
-                    <div>
-                        <label for="show-input-points" class="prevent-select">
-                            <input
-                                type="checkbox"
-                                id="show-input-points"
-                                name="show-input-points"
-                                checked
-                            />
-                            Show input points
-                        </label>
-                    </div>
-                    <div>
-                        <label for="show-circles" class="prevent-select">
-                            <input
-                                type="checkbox"
-                                id="show-circles"
-                                name="show-circles"
-                                checked
-                            />
-                            Show circles
-                        </label>
-                    </div>
+        <div class="d-flex flex-wrap p-3">
+            <div class="p-2">
+                <canvas id="main-scene">
+                    Your browser does not support JavaScript!
+                </canvas>
+            </div>
 
-                    <table>
-                        <tr>
-                            <td><label for="harmonics">Harmonics:</label></td>
-                            <td>
-                                <input
-                                    type="range"
-                                    id="harmonics"
-                                    min="1"
-                                    max="1"
-                                    value="1"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label for="precision">Precision:</label></td>
-                            <td>
-                                <input
-                                    type="number"
-                                    id="precision"
-                                    min="2"
-                                    value="100"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label for="fps">FPS:</label></td>
-                            <td>
-                                <input
-                                    type="number"
-                                    id="fps"
-                                    min="1"
-                                    max="100"
-                                    value="20"
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label for="density">Drawing density:</label></td>
-                            <td>
-                                <input
-                                    type="range"
-                                    id="density"
-                                    min="-200"
-                                    max="-80"
-                                />
-                            </td>
-                        </tr>
-                    </table>
+            <div class="p-2">
+                <textarea
+                    id="input-data"
+                    class="form-control"
+                    rows="20"
+                    cols="15"
+                    autocomplete="off"
+                ></textarea>
+            </div>
 
-                    <button id="start-btn" type="button">Start</button>
-                    <button id="clear-btn" type="button">Clear</button>
-                </td>
-            </tr>
-        </table>
+            <div class="p-2">
+                <div>
+                    <label class="form-label prevent-select">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="show-grid"
+                            checked
+                        />
+                        Show grid
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label prevent-select">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="show-input-points"
+                            checked
+                        />
+                        Show input points
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label prevent-select">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="show-circles"
+                            checked
+                        />
+                        Show circles
+                    </label>
+                </div>
+
+                <div>
+                    <label class="form-label">
+                        Harmonics:
+                        <input
+                            class="form-range"
+                            type="range"
+                            id="harmonics"
+                            min="1"
+                            max="1"
+                            value="1"
+                        />
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label">
+                        Precision:
+                        <input
+                            class="form-control"
+                            type="number"
+                            id="precision"
+                            min="2"
+                            value="100"
+                        />
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label">
+                        FPS:
+                        <input
+                            class="form-control"
+                            type="number"
+                            id="fps"
+                            min="1"
+                            max="100"
+                            value="20"
+                        />
+                    </label>
+                </div>
+                <div>
+                    <label class="form-label">
+                        Drawing density:
+                        <input
+                            class="form-range"
+                            type="range"
+                            id="density"
+                            min="-200"
+                            max="-80"
+                        />
+                    </label>
+                </div>
+
+                <div>
+                    <button id="start-btn" type="button" class="btn btn-success">
+                        Start
+                    </button>
+                    <button id="clear-btn" type="button" class="btn btn-secondary">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <br />
 

@@ -1,3 +1,9 @@
+// Import our custom CSS
+import "./scss/styles.scss";
+
+// Import all of Bootstrap’s JS
+import "bootstrap";
+
 import Complex from "complex.js";
 import { calc_epicycles, clamp, get_series_formula } from "./util";
 import { AnimationController, AnimationView } from "./animation";
@@ -175,6 +181,8 @@ function add_event_listeners() {
 
 window.onload = () => {
     canvas = document.getElementById("main-scene") as HTMLCanvasElement;
+    canvas.height = Math.min(window.innerHeight, window.innerWidth) * 0.8;
+    canvas.width = canvas.height;
 
     const context = canvas.getContext("2d");
     if (context === null) {
