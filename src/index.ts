@@ -131,9 +131,11 @@ function add_canvas_events() {
     let last_mouse_move_ts = 0;
 
     canvas.addEventListener("mousedown", (e) => {
-        is_mouse_down = true;
-        last_mouse_move_ts = get_timestamp();
-        add_or_delete_point(e);
+        if (e.button === 0) {
+            is_mouse_down = true;
+            last_mouse_move_ts = get_timestamp();
+            add_or_delete_point(e);
+        }
     });
     window.addEventListener("mouseup", () => {
         is_mouse_down = false;
