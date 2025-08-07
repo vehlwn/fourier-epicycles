@@ -44,4 +44,4 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist
-      - run: ls -lah dist
+      - run: ls -lah .
