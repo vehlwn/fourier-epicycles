@@ -28,4 +28,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - run: rsync --version
+      - name: Set up SSH client
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cat << EOF > ~/.ssh/config
+            Host prod
+            HostName ${{secrets.DEPLOY_HOST}}
+            Port ${{secrets.SSH_PORT}}
+            User ${{secrets.SSH_USER}}
+            StrictHostKeyChecking no
+          EOF
+      - run: ssh prod echo "hello word"
