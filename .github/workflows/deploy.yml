@@ -40,10 +40,12 @@ jobs:
             User ${{secrets.SSH_USER}}
             StrictHostKeyChecking no
           EOF
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
-      - run: ls -lah .
-      - run: tree
+
+      - name: Upload artifacts to prod
+        run: rsync --archive --delete --verbose dist/ prod:/var/www/epicycles
