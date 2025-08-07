@@ -40,4 +40,8 @@ jobs:
             User ${{secrets.SSH_USER}}
             StrictHostKeyChecking no
           EOF
-      - run: ssh prod echo "hello word"
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+      - run: ls -lah dist
