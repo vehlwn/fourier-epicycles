@@ -10,10 +10,18 @@ export function lerp(x: number, xp: number[], yp: number[]): number {
     return a * x + b;
 }
 
-function linspace(start: number, stop: number, num: number): number[] {
+function linspace(
+    start: number,
+    stop: number,
+    num: number,
+    endpoint = true
+): number[] {
     const ret = [];
     for (let i = 0; i < num; i++) {
         ret.push(lerp(i, [0, num - 1], [start, stop]));
+    }
+    if (!endpoint) {
+        ret.pop();
     }
     return ret;
 }
@@ -54,8 +62,7 @@ export function calc_epicycles(input: Complex[], n: number): EpicyclesResult {
     const coef = dft(input);
     const freq = calc_frequencies(N);
     const circles = [];
-    const times = linspace(0, N, n + 1);
-    times.pop();
+    const times = linspace(0, N, n + 1, false);
     for (const t of times) {
         const t_circles = [];
         for (let n = 0; n < N; n++) {
