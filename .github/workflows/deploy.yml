@@ -1,49 +1,49 @@
 name: Build and deploy vite app
 
 on:
-  push:
-    branches: [ "master" ]
+    push:
+        branches: ["master"]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v4
 
-      - name: Build
-        run: |
-          npm ci
-          npm run build
+            - name: Build
+              run: |
+                  npm ci
+                  npm run build
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: dist
+                  path: dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up SSH client
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          cat << EOF > ~/.ssh/config
-            Host prod
-            HostName ${{secrets.DEPLOY_HOST}}
-            Port ${{secrets.SSH_PORT}}
-            User ${{secrets.SSH_USER}}
-            StrictHostKeyChecking no
-          EOF
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set up SSH client
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+                  cat << EOF > ~/.ssh/config
+                    Host prod
+                    HostName ${{secrets.DEPLOY_HOST}}
+                    Port ${{secrets.SSH_PORT}}
+                    User ${{secrets.SSH_USER}}
+                    StrictHostKeyChecking no
+                  EOF
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: dist
+                  path: dist
 
-      - name: Upload artifacts to prod
-        run: rsync --archive --delete --verbose dist/ prod:/var/www/epicycles
+            - name: Upload artifacts to prod
+              run: rsync --archive --delete --verbose dist/ prod:/var/www/epicycles
