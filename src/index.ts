@@ -95,6 +95,7 @@ function start_animation() {
     validate_harmonics_input();
 
     start_btn.innerHTML = "Stop";
+    start_btn.classList.replace("btn-success", "btn-danger");
     clear_btn.disabled = true;
 
     const fps_value = parseInt(fps_input.value, 10);
@@ -103,6 +104,7 @@ function start_animation() {
 
 function stop_animation() {
     start_btn.innerHTML = "Start";
+    start_btn.classList.replace("btn-danger", "btn-success");
     clear_btn.disabled = false;
     animation_controller.stop();
 }
